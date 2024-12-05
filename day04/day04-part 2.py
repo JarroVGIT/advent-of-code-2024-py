@@ -27,7 +27,8 @@ for y in range(len(content)):
             b = grid.get(complex(x+1, y-1), " ")
             c = grid.get(complex(x-1, y+1), " ")
             d = grid.get(complex(x+1, y+1), " ")
-            if ((a=="M" and d=="S") or (a=="S" and d=="M")) and ((b=="M" and c=="S") or (b=="S" and c=="M")):
+            if ((a=="M" and d=="S") or (a=="S" and d=="M")) and \
+                ((b=="M" and c=="S") or (b=="S" and c=="M")):
                 found += 1
         else: 
             continue
