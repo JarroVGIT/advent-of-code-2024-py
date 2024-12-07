@@ -86,8 +86,9 @@ locs_causing_loops = []
 
 # only check the first loc in loc,dir combinations 
 checked_new_locs = []
-
+grouped_start = time.time()
 for idx, (obstr_location, direction) in enumerate(used_locs_dirs_orig):
+    int_start = time.time()
     if obstr_location == starting_loc:
         # can't place obstruction in starting position, skip.
         continue
@@ -119,7 +120,10 @@ for idx, (obstr_location, direction) in enumerate(used_locs_dirs_orig):
                 break
     if loop_found:
         locs_causing_loops.append(obstr_location)
-        
+    print(f"{idx}: {elapsed(int_start)}")
+    if idx % 500 == 0:
+        print(f"{idx}: {elapsed(grouped_start)}")
+        grouped_start = time.time()
     grid.pop(obstr_location)
-
+    
 print(f"Part 2: {len(locs_causing_loops)}, ({elapsed(start_time)})")
