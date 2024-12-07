@@ -39,20 +39,34 @@ def add(a:int, b:int) -> int:
 def join(a:int, b:int) -> int:
     return int(str(a)+str(b))
 
-def calc_combi(lh: int, components: list[int], operations: list[Callable]):
+def calc_combi(lh: int, components: list[int], operations: list[Callable], target: int):
     if len(operations)>0:
         opp = operations[0]
         res = opp(lh, components[0])
-        return calc_combi(res, components[1:], operations[1:])
+        if res > target:
+            return 0
+        else:
+            return calc_combi(res, components[1:], operations[1:], target)
     else:
         return lh
 
 for outcome, components in lines:
-    combinations = list(product([mul, add, join], repeat=len(components)-1))
+    found=False
+    combinations = list(product([mul, add], repeat=len(components)-1))
     for operations in combinations:
-        calculation = calc_combi(components[0], components[1:], operations)
+        calculation = calc_combi(components[0], components[1:], operations, outcome)
         if calculation == outcome:
             result += outcome
+            found = True
             break
+    
+    if not found:
+        combinations = list(product([mul, add, join], repeat=len(components)-1))
+        for operations in combinations:
+            if join in operations:
+                calculation = calc_combi(components[0], components[1:], operations, outcome)
+                if calculation == outcome:
+                    result += outcome
+                    break 
 
 print(f"Part 2: {result}, {elapsed(start_time)}")
