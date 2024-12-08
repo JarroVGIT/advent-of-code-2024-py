@@ -42,27 +42,8 @@ for val, locs in grid.items():
     for point_a, point_b in combis:
         diff = point_a - point_b
         
-        d_x = abs(int(diff.real))
-        if point_a.real > point_b.real:
-            new_point_1 = complex(point_a.real + d_x, 0)
-            new_point_2 = complex(point_b.real - d_x, 0)
-        elif point_b.real > point_a.real:
-            new_point_1 = complex(point_a.real - d_x, 0)
-            new_point_2 = complex(point_b.real + d_x, 0)
-        else:
-            new_point_ = complex(point_a.real, 0)
-            new_point_2 = complex(point_a.real, 0)
-        
-        d_y = abs(int(diff.imag))
-        if point_a.imag > point_b.imag:
-            new_point_1 += complex(0, point_a.imag + d_y)
-            new_point_2 += complex(0, point_b.imag - d_y)
-        elif point_b.imag > point_a.imag:
-            new_point_1 += complex(0, point_a.imag - d_y)
-            new_point_2 += complex(0, point_b.imag + d_y)
-        else:
-            new_point_1 += complex(0, point_a.imag)
-            new_point_2 += complex(0, point_a.imag)
+        new_point_1 = point_a + diff
+        new_point_2 = point_b - diff
 
         if is_in_grid(new_point_1):
             antinodes.add(new_point_1)
