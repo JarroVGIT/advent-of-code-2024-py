@@ -1,10 +1,11 @@
 # Advent of Code 2024 - Day 10 - part 1
 # Author: Jarro van Ginkel
-from rich import print
 import time
 
-with open("./day10/example.txt") as f:
-#with open("./day10/input.txt") as f:
+from rich import print
+
+#with open("./day10/example.txt") as f:
+with open("./day10/input.txt") as f:
     content = f.read().split("\n")
 
 def elapsed(start_time):
@@ -26,21 +27,24 @@ for y, row in enumerate(content):
 
 directions = [complex(1,0), complex(0,1), complex(-1,0), complex(0, -1)]
 
-def find_nines(curent_loc: complex, current_val: int) -> int:
+def find_nines(current_loc: complex, current_val: int, found: set) -> set[complex]:
     if current_val == 9:
-        return 1
-    result = 0
+        f = found
+        f.add(current_loc)
+        return f 
+    result = set()
     for dir in directions:
-        neighbour = curent_loc + dir
-        neighbour_val = grid.get(neighbour)
-        if neighbour_val == current_val+1:
-            result += find_nines(neighbour, current_val+1)
+        neighbor = current_loc + dir
+        neighbor_val = grid.get(neighbor)
+        if neighbor_val == current_val+1:
+            res = find_nines(neighbor, neighbor_val, found)
+            result = found.union(res)
     return result
 
 result = 0
 
 for zero in zeros:
-    result += find_nines(zero, 0)
+    result += len(find_nines(zero, 0, set()))
 
 
 print(f"Part 1: {result}, {elapsed(start_time)}")
