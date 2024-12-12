@@ -3,8 +3,8 @@
 from rich import print
 import time
 
-with open("./day12/example.txt") as f:
-#with open("./day12/input.txt") as f:
+#with open("./day12/example.txt") as f:
+with open("./day12/input.txt") as f:
     content = f.read().split("\n")
 
 def elapsed(start_time):
@@ -37,23 +37,34 @@ neighbors = [complex(1,0), complex(0,1), complex(-1,0), complex(0, -1)]
 # update: that is easier but also incorrect, doesn't account for more than one side
 # on a row or col. Corner counting (inside + outside), then divide all corners by two
 
-def get_perim_area(loc: complex, val: str, seen: set[complex], sides_cols:set[int], sides_rows:set[int]):
+outside_corners = [ # corner = if val != [0].val != [1].val
+    (complex(-1, 0), complex(0,-1)),
+    (complex(0, -1), complex(1,0)),
+    (complex(1, 0), complex(0,1)),
+    (complex(0, 1), complex(-1,0)),
+]
+
+inside_corners = [ # corner = if val == [0].val and [1].val and [2].val != val
+    (complex(-1, 0), complex(0,-1), complex(-1,-1)),
+    (complex(0, -1), complex(1,0), complex(1,-1)),
+    (complex(1, 0), complex(0,1), complex(1,1)),
+    (complex(0, 1), complex(-1,0), complex(-1,1)),
+]
+
+def get_perim_area(loc: complex, val: str, seen: set[complex], corners: int):
     area = 1
-    if grid.get(loc+complex(-1, 0)) != val: # right side is side
-        sides_cols.add(int(loc.real))
-    if grid.get(loc+complex(1, 0)) != val: # left side is side
-        sides_cols.add(int(loc.real)+1)
-    if grid.get(loc+complex(0, -1)) != val: # upper side is side
-        sides_rows.add(int(loc.imag))
-    if grid.get(loc+complex(0, 1)) != val: # down side is side
-        sides_rows.add(int(loc.imag)+1)
-    
+    for c1, c2 in outside_corners:
+        if grid.get(loc+c1) != val and grid.get(loc+c2) != val:
+            corners += 1
+    for c1, c2, diag in inside_corners:
+        if grid.get(loc+c1) == val and grid.get(loc+c2) == val and grid.get(loc+diag) != val:
+            corners += 1
     next_neighbors = [loc+n for n in neighbors if grid.get(loc+n)==val and loc+n not in seen]
     seen.update(next_neighbors)
     for neigbor in next_neighbors:
-        n_area, sides_cols, sides_rows = get_perim_area(neigbor,val,seen, sides_cols, sides_rows)
+        n_area, corners = get_perim_area(neigbor,val,seen, corners)
         area += n_area
-    return area, sides_cols, sides_rows
+    return area, corners
 
 seen = set()
 sides_areas = []
@@ -62,10 +73,8 @@ for loc, val in grid.items():
     if loc in seen:
         continue
     seen.add(loc)
-    sides_rows: set[int] = set()
-    sides_cols: set[int] = set()
-    area, sides_cols, sides_rows = get_perim_area(loc, val, seen, sides_cols, sides_rows)
-    sides_areas.append((len(sides_cols)+len(sides_rows), area))
+    area, corners= get_perim_area(loc, val, seen, 0)
+    sides_areas.append((corners, area))
 
 
 result = sum([combi[0]*combi[1] for combi in sides_areas])
