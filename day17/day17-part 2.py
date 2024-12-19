@@ -3,6 +3,9 @@
 from rich import print
 import time
 from functools import lru_cache
+from functools import reduce
+from copy import copy
+
 # with open("./day17/example.txt") as f:
 # with open("./day17/example2.txt") as f:
 with open("./day17/input.txt") as f:
@@ -100,16 +103,36 @@ def run_program(reg: dict[str, int]) -> list[str]:
 # manual:
 # round 1: +1
 # round 2: +0
-# round 3: +3 and +6
-#   4 (3): +5
-    
-    
-for i in range(0,8):
-    a = ((((((1*8)+0)*8)+3)*8)+5)*8+i
-    reg = {"A": a, "B": 0, "C": 0}
-    print(i, program[-5:]==run_program(reg)[-5:])
+# round 3: +6 (+3 NA after round 6)
+# round 4: +5
+# round 5: +5 (+1 NA)
+# round 6: +1, +7
+#   7 (1): +0, +6
 
-for i in range(len(program)-1, 0, -1):
+def get_next_iteration(li: list[list[int]]) -> list[list[int]]:
+    result = []
+    for l in li:
+        for i in range(0,8):
+            p = copy(l)
+            p.append(i)
+            a = reduce(lambda acc, val: (acc * 8) + val, p, 0)
+            reg = {"A": a, "B": 0, "C": 0}
+            r = run_program(reg)
+            if program[(-len(p)):]==r[(-len(p)):]:
+                result.append(p)
+    return result
+
+li: list[list[int]] = [[1]]
+for i in range(1, len(program)):
+    li = get_next_iteration(li)
+
+# Get lowest number from list.
+a = reduce(lambda acc, val: (acc * 8) + val, li[0], 0)
+for l in li[1:]:
+    s = reduce(lambda acc, val: (acc * 8) + val, l, 0)
+    a = min(a, s)
+
+
     
 
 # for i in range(1, 9):
@@ -138,5 +161,5 @@ for i in range(len(program)-1, 0, -1):
 #         break
 #     else:
 #         bf_a += 1
-result = 0
+result = a
 print(f"Part 2: {result}, {elapsed(start_time)}")
