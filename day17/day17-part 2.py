@@ -86,34 +86,28 @@ def run_program(reg: dict[str, int]) -> list[str]:
 
 # Program only adjusts A in one step (opcode 0)
 # operand in that step is 3, so denom is always 2**3=8.
-# Only when A//9 == 0, the program exits (last opcode in program)
+# Only when A//8 == 0, the program exits (last opcode in program)
 # Each iteration, there is only one output (opcode 5) call.
 # In the last iteration, A must be 1-7, so second last iteration, 
 # A must be between 8 times that + 7. 
 # Example: last_iteration: A = 7 (will result in A=0)
-# second last iteration must be 7*8 (56) to 7*8+7 (63), 
-# because every int between 56 and 63 //8 = 7. 
-# for each of that possibility, you again have 8 possbile numbers
-# preceding. But all in all, a lot less than brute forcing.
-# Update: well that is as worse as bruteforcing, resulting in 
-# billions of numbers. New approach: see what number will result in
-# the last int of the program, then try the 8 next values (*8+0 to *8+7)
-# Initialize the base numbers (1 to 7) at the 9th division
+# second last iteration must be between 7*8 (56) to 7*8+7 (63), 
+# because every int between 56 and 63 floor-divided by 8 = 7. 
+# For each of that possibility, you again have 8 possbile numbers
+# preceding. Each iteration will yield an output, which we can match
+# against the last numbers of the program. I have checked by hand that
+# if A is set to 1, the output is the same as program[-1]. I created a BFS
+# which takes a list of 0-7 values, and calculates the A based on that.
+# This is reducing (acc * 8 + i) where acc starts at 0. It returns a list
+# of lists of ints, all of them resulting building up to the program output.
+# Then finally, calculate the minimum A for the resulting lists of ints.
 
-# manual:
-# round 1: +1
-# round 2: +0
-# round 3: +6 (+3 NA after round 6)
-# round 4: +5
-# round 5: +5 (+1 NA)
-# round 6: +1, +7
-#   7 (1): +0, +6
 
-def get_next_iteration(li: list[list[int]]) -> list[list[int]]:
+def get_next_iteration(lists_so_far: list[list[int]]) -> list[list[int]]:
     result = []
-    for l in li:
+    for lst in lists_so_far:
         for i in range(0,8):
-            p = copy(l)
+            p = copy(lst)
             p.append(i)
             a = reduce(lambda acc, val: (acc * 8) + val, p, 0)
             reg = {"A": a, "B": 0, "C": 0}
@@ -122,44 +116,15 @@ def get_next_iteration(li: list[list[int]]) -> list[list[int]]:
                 result.append(p)
     return result
 
-li: list[list[int]] = [[1]]
+solutions: list[list[int]] = [[1]]
 for i in range(1, len(program)):
-    li = get_next_iteration(li)
+    solutions = get_next_iteration(solutions)
 
-# Get lowest number from list.
-a = reduce(lambda acc, val: (acc * 8) + val, li[0], 0)
-for l in li[1:]:
-    s = reduce(lambda acc, val: (acc * 8) + val, l, 0)
-    a = min(a, s)
+# Get lowest possible A from solutions list.
 
+result = reduce(lambda acc, val: (acc * 8) + val, solutions[0], 0)
+for solution in solutions[1:]:
+    s = reduce(lambda acc, val: (acc * 8) + val, solution, 0)
+    result = min(result, s)
 
-    
-
-# for i in range(1, 9):
-#     a = i*(8**(len(program)-1))
-#     reg = {"A": a, "B": 0, "C": 0}
-#     o = run_program(reg)
-#     print(o)
-#     print(program)
-#     if 0 == program:
-#         result = a
-
-
-# while True:
-#     reg = reset_reg(multiplier)
-#     output = run_program(reg)
-#     if len(output) < len(program):
-#         multiplier += 1
-#     else:
-#         bf_a = reset_reg(multiplier-1)["A"]
-#         break
-
-# while True:
-#     reg = {"A": bf_a, "B": 0, "C": 0}
-#     if run_program(reg) == program:
-#         result = bf_a
-#         break
-#     else:
-#         bf_a += 1
-result = a
 print(f"Part 2: {result}, {elapsed(start_time)}")
