@@ -12,7 +12,7 @@
             ],
             "env": {
                 "PYTHONPATH": "${workspaceFolder}/utils"
-            }
+            },
         },
         {
             "name": "AoC Input",
@@ -20,9 +20,6 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            "args": [
-                "--input"
-            ],
             "env": {
                 "PYTHONPATH": "${workspaceFolder}/utils"
             }
