@@ -1,21 +1,9 @@
 # Advent of Code 2024 - Day 21 - part 1
 # Author: Jarro van Ginkel
+from aoc_utils import elapsed, parse_data_as_lines, start_time
 from rich import print
-import time
 
-with open("./day21/example.txt") as f:
-#with open("./day21/input.txt") as f:
-    content = f.read().split("\n")
-
-def elapsed(start_time):
-    elapsed = time.time() - start_time
-    minutes = int(elapsed // 60)
-    seconds = int(elapsed % 60)
-    milliseconds = int((elapsed % 1) * 1000)
-    return f"{minutes:02}:{seconds:02}:{milliseconds:03}"
-start_time = time.time()
-
-
+content = parse_data_as_lines(21)
 
 
 result = 0

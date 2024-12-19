@@ -2,7 +2,6 @@
 # Author: Jarro van Ginkel
 from rich import print
 import time
-from functools import lru_cache
 from functools import reduce
 from copy import copy
 
